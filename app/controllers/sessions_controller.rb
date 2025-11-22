@@ -9,12 +9,24 @@ class SessionsController < ApplicationController
   end
 
   def create
-    user = User.find_by(email: params[:email])
-    if user&.authenticate(params[:password])
+    username = params[:username]&.strip&.downcase
+
+    if username.blank?
+      flash[:alert] = "Please enter a username"
+      redirect_to new_session_path
+      return
+    end
+
+    user = User.find_or_create_by(username: username) do |u|
+      u.name = username.titleize
+      u.email = "#{username}@secretsanta.com"
+    end
+
+    if user.persisted?
       session[:user_id] = user.id
       redirect_to home_path
     else
-      flash[:alert] = "Email or password is invalid"
+      flash[:alert] = "Could not create account. Please try again."
       redirect_to new_session_path
     end
   end

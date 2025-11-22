@@ -2,20 +2,31 @@ class Api::V1::AuthController < Api::V1::ApiController
   skip_before_action :authenticate_request, only: [:login]
 
   def login
-    user = User.find_by(email: params[:email])
+    username = params[:username]&.strip&.downcase
 
-    if user&.authenticate(params[:password])
+    if username.blank?
+      render json: { error: 'Username is required' }, status: :bad_request
+      return
+    end
+
+    user = User.find_or_create_by(username: username) do |u|
+      u.name = username.titleize
+      u.email = "#{username}@secretsanta.com"
+    end
+
+    if user.persisted?
       token = encode_token(user.id)
       render json: {
         token: token,
         user: {
           id: user.id,
+          username: user.username,
           email: user.email,
           name: user.name
         }
       }, status: :ok
     else
-      render json: { error: 'Invalid email or password' }, status: :unauthorized
+      render json: { error: 'Could not create account' }, status: :unprocessable_entity
     end
   end
 
