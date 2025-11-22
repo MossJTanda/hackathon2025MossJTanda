@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
 
   def new
     if current_user.present?
-      redirect_to logged_in_path
+      redirect_to home_path
     end
   end
 
