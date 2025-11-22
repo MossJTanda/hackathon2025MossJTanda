@@ -124,70 +124,101 @@
 
       <!-- Add Participant (Creator Only) -->
       <% if @is_creator && !@event.assignments_generated %>
-        <%= form_with url: event_participants_path(@event), method: :post, class: "mt-4", id: "add-participant-form" do |f| %>
-          <div class="flex gap-2 relative">
-            <%= text_field_tag :username, nil,
-              placeholder: "Enter username to add participant",
-              class: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent",
-              autocomplete: "off",
-              id: "username-input",
-              onfocus: "showUserDropdown()",
-              oninput: "filterUsers(this.value)" %>
-            <%= button_tag type: "submit", class: "bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
-              + Add
-            <% end %>
-
-            <!-- Dropdown -->
-            <div id="user-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
-              <% User.where.not(id: @participants.pluck(:id)).order(:username).each do |user| %>
-                <div class="user-option px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                     data-username="<%= user.username %>"
-                     onclick="selectUser('<%= user.username %>')">
-                  <div class="flex items-center">
-                    <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
-                      <%= user.name.first.upcase %>
-                    </div>
-                    <div>
-                      <div class="font-medium text-gray-800"><%= user.name %></div>
-                      <div class="text-xs text-gray-500">@<%= user.username %></div>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-              <div class="px-3 py-2 border-t border-gray-200 bg-gray-50 text-xs text-gray-600">
-                💡 Don't see them? Type any username to create a new account!
-              </div>
-            </div>
-          </div>
-          <p class="text-xs text-gray-500 mt-1">Select existing user or type new username to create account</p>
-        <% end %>
+        <button onclick="openAddParticipantModal()" class="w-full mt-4 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+          + Add Participant
+        </button>
       <% end %>
     </div>
 
   </div>
 </div>
 
+<!-- Add Participant Modal -->
+<div id="add-participant-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg w-full max-w-md max-h-[80vh] flex flex-col">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+      <h3 class="text-lg font-bold text-gray-800">Add Participant</h3>
+      <button onclick="closeAddParticipantModal()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search Input -->
+    <div class="p-4 border-b border-gray-200">
+      <input type="text"
+             id="modal-search-input"
+             placeholder="Search by name or username..."
+             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+             autocomplete="off"
+             oninput="filterModalUsers(this.value)">
+    </div>
+
+    <!-- User List -->
+    <div class="flex-1 overflow-y-auto">
+      <% User.where.not(id: @participants.pluck(:id)).order(:username).each do |user| %>
+        <div class="modal-user-option px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+             data-username="<%= user.username %>"
+             data-user-id="<%= user.id %>"
+             onclick="selectModalUser('<%= user.username %>')">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+              <%= user.name.first.upcase %>
+            </div>
+            <div>
+              <div class="font-medium text-gray-800"><%= user.name %></div>
+              <div class="text-xs text-gray-500">@<%= user.username %></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer with info -->
+    <div class="p-4 bg-gray-50 border-t border-gray-200">
+      <p class="text-xs text-gray-600 text-center">
+        💡 Don't see them? Type any username in the search to create a new account!
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden form for submission -->
+<%= form_with url: event_participants_path(@event), method: :post, id: "add-participant-form", class: "hidden" do |f| %>
+  <%= text_field_tag :username, nil, id: "hidden-username-input" %>
+<% end %>
+
 <script>
-function showUserDropdown() {
-  const dropdown = document.getElementById('user-dropdown');
-  dropdown.classList.remove('hidden');
+function openAddParticipantModal() {
+  const modal = document.getElementById('add-participant-modal');
+  modal.classList.remove('hidden');
+  // Focus search input
+  setTimeout(() => {
+    document.getElementById('modal-search-input').focus();
+  }, 100);
+  // Reset search
+  document.getElementById('modal-search-input').value = '';
+  filterModalUsers('');
 }
 
-function hideUserDropdown() {
-  const dropdown = document.getElementById('user-dropdown');
-  dropdown.classList.add('hidden');
+function closeAddParticipantModal() {
+  const modal = document.getElementById('add-participant-modal');
+  modal.classList.add('hidden');
 }
 
-function selectUser(username) {
-  const input = document.getElementById('username-input');
-  input.value = username;
-  hideUserDropdown();
-  // Submit the form after selecting a user
+function selectModalUser(username) {
+  // Set username in hidden form
+  document.getElementById('hidden-username-input').value = username;
+  // Submit form
   document.getElementById('add-participant-form').requestSubmit();
+  // Close modal
+  closeAddParticipantModal();
 }
 
-function filterUsers(searchTerm) {
-  const options = document.querySelectorAll('.user-option');
+function filterModalUsers(searchTerm) {
+  const options = document.querySelectorAll('.modal-user-option');
   const term = searchTerm.toLowerCase();
 
   if (!searchTerm) {
@@ -195,36 +226,36 @@ function filterUsers(searchTerm) {
     options.forEach(option => {
       option.classList.remove('hidden');
     });
-    showUserDropdown();
     return;
   }
 
-  let hasVisible = false;
   options.forEach(option => {
     const username = option.dataset.username.toLowerCase();
     const name = option.querySelector('.font-medium').textContent.toLowerCase();
 
     if (username.includes(term) || name.includes(term)) {
       option.classList.remove('hidden');
-      hasVisible = true;
     } else {
       option.classList.add('hidden');
     }
   });
-
-  // Show dropdown if we have results
-  if (hasVisible) {
-    showUserDropdown();
-  }
 }
 
-// Close dropdown when clicking outside
+// Close modal when clicking outside
 document.addEventListener('click', function(event) {
-  const input = document.getElementById('username-input');
-  const dropdown = document.getElementById('user-dropdown');
+  const modal = document.getElementById('add-participant-modal');
+  if (modal && event.target === modal) {
+    closeAddParticipantModal();
+  }
+});
 
-  if (input && dropdown && !input.contains(event.target) && !dropdown.contains(event.target)) {
-    hideUserDropdown();
+// Allow typing new username and pressing Enter
+document.getElementById('modal-search-input')?.addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    const searchValue = this.value.trim();
+    if (searchValue) {
+      selectModalUser(searchValue);
+    }
   }
 });
 </script>
