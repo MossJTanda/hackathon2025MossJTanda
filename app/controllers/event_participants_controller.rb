@@ -28,11 +28,15 @@ class EventParticipantsController < ApplicationController
   end
 
   def find_or_invite_user
-    # Try to find by email first
-    email = params[:email]
-    return nil unless email.present?
+    # Try to find by username
+    username = params[:username]&.strip&.downcase
+    return nil unless username.present?
 
-    User.find_by(email: email)
+    # Find or create user by username (same as login flow)
+    User.find_or_create_by(username: username) do |u|
+      u.name = username.titleize
+      u.email = "#{username}@secretsanta.com"
+    end
   end
 
   def require_event_creator

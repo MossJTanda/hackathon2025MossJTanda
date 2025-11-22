@@ -126,11 +126,12 @@
       <% if @is_creator && !@event.assignments_generated %>
         <%= form_with url: event_participants_path(@event), method: :post, class: "mt-4" do |f| %>
           <div class="flex gap-2">
-            <%= text_field_tag :email, nil, placeholder: "Enter email to add participant", class: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" %>
+            <%= text_field_tag :username, nil, placeholder: "Enter username to add participant", class: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent", autocomplete: "off" %>
             <%= button_tag type: "submit", class: "bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
               + Add
             <% end %>
           </div>
+          <p class="text-xs text-gray-500 mt-1">Just enter their username - account will be created if it doesn't exist!</p>
         <% end %>
       <% end %>
     </div>
