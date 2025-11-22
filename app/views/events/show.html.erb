@@ -97,7 +97,7 @@
       <div class="space-y-2">
         <% @participants.each do |participant| %>
           <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div class="flex items-center">
+            <div class="flex items-center flex-1">
               <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
                 <%= participant.name.first.upcase %>
               </div>
@@ -106,9 +106,18 @@
                 <div class="text-xs text-gray-500"><%= participant.email %></div>
               </div>
             </div>
-            <% if participant == @event.created_by %>
-              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
-            <% end %>
+            <div class="flex items-center gap-2">
+              <% if participant == @event.created_by %>
+                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
+              <% end %>
+              <% if @is_creator && !@event.assignments_generated %>
+                <%= link_to edit_participant_blocks_event_path(@event, participant), class: "text-red-600 hover:text-red-700" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                  </svg>
+                <% end %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>
@@ -126,45 +135,5 @@
       <% end %>
     </div>
 
-    <!-- Block List (Creator Only) -->
-    <% if @is_creator %>
-      <div class="bg-white rounded-lg shadow p-4">
-        <h3 class="font-bold text-gray-800 mb-3">Block List (<%= @blocks.count %>)</h3>
-        <p class="text-sm text-gray-600 mb-3">Prevent certain pairs (e.g., couples)</p>
-
-        <% if @blocks.any? %>
-          <div class="space-y-2 mb-4">
-            <% @blocks.each do |block| %>
-              <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-                <div class="text-sm">
-                  <span class="font-medium"><%= block.blocker.name %></span>
-                  <span class="text-gray-500 mx-1">↔</span>
-                  <span class="font-medium"><%= block.blocked.name %></span>
-                </div>
-                <%= button_to event_block_path(@event, block), method: :delete, class: "text-red-600 hover:text-red-800" do %>
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-
-        <% if @participants.count >= 2 && !@event.assignments_generated %>
-          <%= form_with url: event_blocks_path(@event), method: :post do |f| %>
-            <div class="space-y-2">
-              <div class="grid grid-cols-2 gap-2">
-                <%= select_tag :blocker_id, options_from_collection_for_select(@participants, :id, :name), { prompt: "Select person 1", class: "px-3 py-2 border border-gray-300 rounded-lg" } %>
-                <%= select_tag :blocked_id, options_from_collection_for_select(@participants, :id, :name), { prompt: "Select person 2", class: "px-3 py-2 border border-gray-300 rounded-lg" } %>
-              </div>
-              <%= button_tag type: "submit", class: "w-full bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
-                + Add Block
-              <% end %>
-            </div>
-          <% end %>
-        <% end %>
-      </div>
-    <% end %>
   </div>
 </div>

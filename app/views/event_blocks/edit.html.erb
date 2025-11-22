@@ -1,0 +1,144 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <%= link_to @event, class: "mr-3" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        <% end %>
+        <h1 class="text-xl font-bold">Block Settings</h1>
+      </div>
+      <button type="submit" form="block-form" class="bg-white text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-50 transition-colors">
+        Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Participant Name -->
+  <div class="bg-white border-b border-gray-200 px-6 py-4">
+    <div class="flex items-center">
+      <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white text-xl font-bold mr-3">
+        <%= @participant.name.first.upcase %>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800"><%= @participant.name %></h2>
+        <p class="text-sm text-gray-600">Who can't <%= @participant.name %> buy for?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Column Layout -->
+  <%= form_with url: update_participant_blocks_event_path(@event, @participant), method: :post, id: "block-form" do |f| %>
+    <div class="px-4 py-6">
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <!-- Available Column -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-700 mb-3 text-center">✅ Can Buy For</h3>
+          <div class="bg-white rounded-lg shadow border-2 border-green-200 min-h-[300px]">
+            <div id="available-list" class="divide-y divide-gray-200">
+              <% @other_participants.each do |participant| %>
+                <% unless @blocked_user_ids.include?(participant.id) %>
+                  <div class="p-3 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors user-item"
+                       data-user-id="<%= participant.id %>"
+                       data-status="available"
+                       onclick="toggleBlock(this)">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
+                        <%= participant.name.first.upcase %>
+                      </div>
+                      <div class="text-sm font-medium text-gray-800"><%= participant.name %></div>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blocked Column -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-700 mb-3 text-center">🚫 Cannot Buy For</h3>
+          <div class="bg-white rounded-lg shadow border-2 border-red-200 min-h-[300px]">
+            <div id="blocked-list" class="divide-y divide-gray-200">
+              <% @other_participants.each do |participant| %>
+                <% if @blocked_user_ids.include?(participant.id) %>
+                  <div class="p-3 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors user-item"
+                       data-user-id="<%= participant.id %>"
+                       data-status="blocked"
+                       onclick="toggleBlock(this)">
+                    <div class="flex items-center">
+                      <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
+                        <%= participant.name.first.upcase %>
+                      </div>
+                      <div class="text-sm font-medium text-gray-800"><%= participant.name %></div>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Box -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="text-sm text-blue-800">
+            <strong>Tap to toggle:</strong> Tap on any name to move them between "Can Buy For" and "Cannot Buy For". Don't forget to save!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden field to store blocked user IDs -->
+    <div id="blocked-inputs"></div>
+  <% end %>
+</div>
+
+<script>
+function toggleBlock(element) {
+  const userId = element.dataset.userId;
+  const currentStatus = element.dataset.status;
+  const availableList = document.getElementById('available-list');
+  const blockedList = document.getElementById('blocked-list');
+
+  // Toggle status
+  if (currentStatus === 'available') {
+    element.dataset.status = 'blocked';
+    blockedList.appendChild(element);
+    // Update avatar color
+    element.querySelector('.w-8').classList.remove('bg-green-600');
+    element.querySelector('.w-8').classList.add('bg-red-600');
+  } else {
+    element.dataset.status = 'available';
+    availableList.appendChild(element);
+    // Update avatar color
+    element.querySelector('.w-8').classList.remove('bg-red-600');
+    element.querySelector('.w-8').classList.add('bg-green-600');
+  }
+
+  updateHiddenInputs();
+}
+
+function updateHiddenInputs() {
+  const blockedInputsContainer = document.getElementById('blocked-inputs');
+  blockedInputsContainer.innerHTML = '';
+
+  const blockedItems = document.querySelectorAll('[data-status="blocked"]');
+  blockedItems.forEach(item => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'blocked_user_ids[]';
+    input.value = item.dataset.userId;
+    blockedInputsContainer.appendChild(input);
+  });
+}
+
+// Initialize hidden inputs on page load
+document.addEventListener('DOMContentLoaded', updateHiddenInputs);
+</script>

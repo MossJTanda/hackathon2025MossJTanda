@@ -25,7 +25,10 @@ Rails.application.routes.draw do
     end
 
     resources :participants, only: [:create, :destroy], controller: 'event_participants'
-    resources :blocks, only: [:create, :destroy], controller: 'event_blocks'
+
+    # Block management for a specific participant
+    get 'blocks/:user_id/edit', to: 'event_blocks#edit', as: 'edit_participant_blocks'
+    post 'blocks/:user_id/update', to: 'event_blocks#update', as: 'update_participant_blocks'
   end
 
   # API Routes
