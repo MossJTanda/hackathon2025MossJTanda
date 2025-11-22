@@ -24,6 +24,8 @@ Rails.application.routes.draw do
       post :reset_assignments
     end
 
+    # Add participant selection page
+    get 'add_participant', to: 'event_participants#new', as: 'add_participant'
     resources :participants, only: [:create, :destroy], controller: 'event_participants'
 
     # Block management for a specific participant

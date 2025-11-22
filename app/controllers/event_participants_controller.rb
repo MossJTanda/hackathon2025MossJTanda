@@ -1,5 +1,10 @@
 class EventParticipantsController < ApplicationController
   before_action :set_event
+  before_action :require_event_creator, only: [:new, :create]
+
+  def new
+    @available_users = User.where.not(id: @event.participants.pluck(:id)).order(:username)
+  end
 
   def create
     user = find_or_invite_user
