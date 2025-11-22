@@ -24,7 +24,13 @@ class Event < ApplicationRecord
   end
 
   def add_participant(user)
-    participants << user unless participants.include?(user)
+    return false if assignments_generated
+    return true if participants.include?(user)
+
+    participants << user
+    true
+  rescue => e
+    false
   end
 
   def remove_participant(user)
