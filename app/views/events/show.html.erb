@@ -124,7 +124,7 @@
 
       <!-- Add Participant (Creator Only) -->
       <% if @is_creator && !@event.assignments_generated %>
-        <button onclick="openAddParticipantModal()" class="w-full mt-4 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+        <button type="button" onclick="openAddParticipantModal()" class="w-full mt-4 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
           + Add Participant
         </button>
       <% end %>
@@ -133,61 +133,63 @@
   </div>
 </div>
 
-<!-- Add Participant Modal -->
-<div id="add-participant-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-lg w-full max-w-md max-h-[80vh] flex flex-col">
-    <!-- Modal Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200">
-      <h3 class="text-lg font-bold text-gray-800">Add Participant</h3>
-      <button onclick="closeAddParticipantModal()" class="text-gray-500 hover:text-gray-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
+<% if @is_creator && !@event.assignments_generated %>
+  <!-- Add Participant Modal -->
+  <div id="add-participant-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-md max-h-[80vh] flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800">Add Participant</h3>
+        <button onclick="closeAddParticipantModal()" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
 
-    <!-- Search Input -->
-    <div class="p-4 border-b border-gray-200">
-      <input type="text"
-             id="modal-search-input"
-             placeholder="Search by name or username..."
-             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-             autocomplete="off"
-             oninput="filterModalUsers(this.value)">
-    </div>
+      <!-- Search Input -->
+      <div class="p-4 border-b border-gray-200">
+        <input type="text"
+               id="modal-search-input"
+               placeholder="Search by name or username..."
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+               autocomplete="off"
+               oninput="filterModalUsers(this.value)">
+      </div>
 
-    <!-- User List -->
-    <div class="flex-1 overflow-y-auto">
-      <% User.where.not(id: @participants.pluck(:id)).order(:username).each do |user| %>
-        <div class="modal-user-option px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
-             data-username="<%= user.username %>"
-             data-user-id="<%= user.id %>"
-             onclick="selectModalUser('<%= user.username %>')">
-          <div class="flex items-center">
-            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
-              <%= user.name.first.upcase %>
-            </div>
-            <div>
-              <div class="font-medium text-gray-800"><%= user.name %></div>
-              <div class="text-xs text-gray-500">@<%= user.username %></div>
+      <!-- User List -->
+      <div class="flex-1 overflow-y-auto">
+        <% User.where.not(id: @participants.pluck(:id)).order(:username).each do |user| %>
+          <div class="modal-user-option px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+               data-username="<%= user.username %>"
+               data-user-id="<%= user.id %>"
+               onclick="selectModalUser('<%= user.username %>')">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                <%= user.name.first.upcase %>
+              </div>
+              <div>
+                <div class="font-medium text-gray-800"><%= user.name %></div>
+                <div class="text-xs text-gray-500">@<%= user.username %></div>
+              </div>
             </div>
           </div>
-        </div>
-      <% end %>
-    </div>
+        <% end %>
+      </div>
 
-    <!-- Footer with info -->
-    <div class="p-4 bg-gray-50 border-t border-gray-200">
-      <p class="text-xs text-gray-600 text-center">
-        💡 Don't see them? Type any username in the search to create a new account!
-      </p>
+      <!-- Footer with info -->
+      <div class="p-4 bg-gray-50 border-t border-gray-200">
+        <p class="text-xs text-gray-600 text-center">
+          💡 Don't see them? Type any username in the search to create a new account!
+        </p>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Hidden form for submission -->
-<%= form_with url: event_participants_path(@event), method: :post, id: "add-participant-form", class: "hidden" do |f| %>
-  <%= text_field_tag :username, nil, id: "hidden-username-input" %>
+  <!-- Hidden form for submission -->
+  <%= form_with url: event_participants_path(@event), method: :post, id: "add-participant-form", class: "hidden" do |f| %>
+    <%= text_field_tag :username, nil, id: "hidden-username-input" %>
+  <% end %>
 <% end %>
 
 <script>
