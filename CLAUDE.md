@@ -6,12 +6,13 @@ A Rails 8.1.1 application providing both a web interface and JSON API for user m
 ## Tech Stack
 - **Framework**: Rails 8.1.1
 - **Ruby**: 3.2.4
-- **Database**: SQLite3 (in development)
+- **Database**: SQLite3 (development/test), PostgreSQL (production)
 - **Frontend**: Tailwind CSS, Hotwire (Turbo + Stimulus)
 - **Authentication**:
   - Web: Session-based with `has_secure_password`
   - API: JWT tokens
 - **Server**: Puma
+- **Deployment**: Render
 
 ## Project Structure
 
@@ -77,9 +78,53 @@ docker compose up
 - **Routes**: Web and API routes separated in `config/routes.rb`
 - **Database**: SQLite schema in `db/schema.rb`
 
+## Deployment to Render
+
+This application is configured for deployment to Render using the `render.yaml` blueprint.
+
+**Prerequisites:**
+1. A Render account (sign up at https://render.com)
+2. Your `config/master.key` file (needed for Rails credentials)
+
+**Deployment Steps:**
+
+1. **Push your code to GitHub** (if not already done)
+
+2. **Create new Web Service on Render:**
+   - Go to https://dashboard.render.com
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will automatically detect `render.yaml` and create:
+     - PostgreSQL database (free tier)
+     - Web service (free tier)
+
+3. **Set Environment Variables:**
+   - In the Render dashboard, go to your web service
+   - Navigate to "Environment" tab
+   - Add `RAILS_MASTER_KEY` with the value from your `config/master.key` file
+   - The `DATABASE_URL` is automatically set from the database connection
+
+4. **Deploy:**
+   - Render will automatically deploy on every push to your main branch
+   - First deployment may take 5-10 minutes
+   - View logs in the Render dashboard to monitor deployment
+
+**Configuration Files:**
+- `render.yaml` - Render blueprint defining database and web service
+- `bin/render-build.sh` - Build script (runs migrations, precompiles assets)
+- `config/database.yml` - Configured for PostgreSQL in production
+- `Gemfile` - Includes `pg` gem for PostgreSQL in production
+
+**Free Tier Limitations:**
+- Web service spins down after 15 minutes of inactivity
+- First request after spin-down may take 30-60 seconds
+- Database limited to 1GB storage
+- Sufficient for hackathons and prototypes
+
 ## Important Notes
 
 - JWT secret uses Rails' `secret_key_base` - do not expose in production
-- CORS is currently set to `origins '*'`
+- CORS is currently set to `origins '*'` - configure appropriately for production
 - API controllers skip CSRF protection with `skip_before_action :verify_authenticity_token`
 - Docker requires rebuild after Gemfile changes to install new gems
+- Keep your `config/master.key` secure and never commit it to version control

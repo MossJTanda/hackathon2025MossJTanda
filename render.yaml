@@ -1,0 +1,24 @@
+databases:
+  - name: hackathon-db
+    databaseName: hackathon_production
+    user: hackathon
+    plan: free
+
+services:
+  - type: web
+    name: hackathon-starter
+    runtime: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hackathon-db
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: RAILS_ENV
+        value: production
+      - key: BUNDLE_WITHOUT
+        value: development:test
