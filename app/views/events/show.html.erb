@@ -123,7 +123,7 @@
       </div>
 
       <!-- Add Participant (Creator Only) -->
-      <% if @is_creator && !@event.assignments_generated %>
+      <% if @is_creator && !@event.assignments_generated && @has_available_users %>
         <%= link_to event_add_participant_path(@event), class: "block w-full mt-4 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors text-center" do %>
           + Add Participant
         <% end %>

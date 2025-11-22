@@ -14,9 +14,9 @@ class EventsController < ApplicationController
     @receiver = @assignment&.receiver
     @blocks = @event.event_block_lists if @is_creator
 
-    # Preload available users for the add participant modal
+    # Check if there are available users to add
     if @is_creator && !@event.assignments_generated
-      @available_users = User.where.not(id: @participants.pluck(:id)).order(:username)
+      @has_available_users = User.where.not(id: @participants.pluck(:id)).exists?
     end
   end
 
