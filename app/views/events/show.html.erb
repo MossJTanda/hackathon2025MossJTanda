@@ -111,13 +111,9 @@
                 <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
               <% end %>
               <% if @is_creator && !@event.assignments_generated %>
-                <%= link_to event_edit_participant_blocks_path(@event, participant), class: "px-3 py-1.5 bg-orange-100 text-orange-700 rounded text-xs font-medium hover:bg-orange-200 transition-colors" do %>
-                  🚫 Blocks
-                <% end %>
+                <%= action_button "Blocks", event_edit_participant_blocks_path(@event, participant), color: :orange %>
                 <% unless participant == @event.created_by %>
-                  <%= button_to event_participant_path(@event, participant), method: :delete, data: { confirm: "Remove #{participant.name} from this event?" }, class: "px-3 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200 transition-colors" do %>
-                    Remove
-                  <% end %>
+                  <%= action_button "Remove", event_participant_path(@event, participant), color: :red, method: :delete, data: { confirm: "Remove #{participant.name} from this event?" } %>
                 <% end %>
               <% end %>
             </div>
