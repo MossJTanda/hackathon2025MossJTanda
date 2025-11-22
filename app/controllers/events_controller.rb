@@ -7,7 +7,10 @@ class EventsController < ApplicationController
   end
 
   def show
-    @participants = @event.participants
+    # Sort participants with host first, then alphabetically
+    @participants = @event.participants.sort_by do |p|
+      [p == @event.created_by ? 0 : 1, p.name.downcase]
+    end
     @is_creator = current_user.can_manage_event?(@event)
     @is_participant = current_user.participating_in?(@event)
     @assignment = current_user.assignment_for_event(@event) if @is_participant
