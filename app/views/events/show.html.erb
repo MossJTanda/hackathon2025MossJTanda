@@ -190,74 +190,90 @@
   <%= form_with url: event_participants_path(@event), method: :post, id: "add-participant-form", class: "hidden" do |f| %>
     <%= text_field_tag :username, nil, id: "hidden-username-input" %>
   <% end %>
-<% end %>
 
-<script>
-function openAddParticipantModal() {
-  const modal = document.getElementById('add-participant-modal');
-  modal.classList.remove('hidden');
-  // Focus search input
-  setTimeout(() => {
-    document.getElementById('modal-search-input').focus();
-  }, 100);
-  // Reset search
-  document.getElementById('modal-search-input').value = '';
-  filterModalUsers('');
-}
-
-function closeAddParticipantModal() {
-  const modal = document.getElementById('add-participant-modal');
-  modal.classList.add('hidden');
-}
-
-function selectModalUser(username) {
-  // Set username in hidden form
-  document.getElementById('hidden-username-input').value = username;
-  // Submit form
-  document.getElementById('add-participant-form').requestSubmit();
-  // Close modal
-  closeAddParticipantModal();
-}
-
-function filterModalUsers(searchTerm) {
-  const options = document.querySelectorAll('.modal-user-option');
-  const term = searchTerm.toLowerCase();
-
-  if (!searchTerm) {
-    // Show all if empty
-    options.forEach(option => {
-      option.classList.remove('hidden');
-    });
-    return;
+  <script>
+  function openAddParticipantModal() {
+    const modal = document.getElementById('add-participant-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      // Focus search input
+      setTimeout(() => {
+        const searchInput = document.getElementById('modal-search-input');
+        if (searchInput) searchInput.focus();
+      }, 100);
+      // Reset search
+      const searchInput = document.getElementById('modal-search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        filterModalUsers('');
+      }
+    }
   }
 
-  options.forEach(option => {
-    const username = option.dataset.username.toLowerCase();
-    const name = option.querySelector('.font-medium').textContent.toLowerCase();
+  function closeAddParticipantModal() {
+    const modal = document.getElementById('add-participant-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
 
-    if (username.includes(term) || name.includes(term)) {
-      option.classList.remove('hidden');
-    } else {
-      option.classList.add('hidden');
+  function selectModalUser(username) {
+    // Set username in hidden form
+    const hiddenInput = document.getElementById('hidden-username-input');
+    const form = document.getElementById('add-participant-form');
+    if (hiddenInput && form) {
+      hiddenInput.value = username;
+      // Submit form
+      form.requestSubmit();
+      // Close modal
+      closeAddParticipantModal();
+    }
+  }
+
+  function filterModalUsers(searchTerm) {
+    const options = document.querySelectorAll('.modal-user-option');
+    const term = searchTerm.toLowerCase();
+
+    if (!searchTerm) {
+      // Show all if empty
+      options.forEach(option => {
+        option.classList.remove('hidden');
+      });
+      return;
+    }
+
+    options.forEach(option => {
+      const username = option.dataset.username.toLowerCase();
+      const nameElement = option.querySelector('.font-medium');
+      const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+
+      if (username.includes(term) || name.includes(term)) {
+        option.classList.remove('hidden');
+      } else {
+        option.classList.add('hidden');
+      }
+    });
+  }
+
+  // Close modal when clicking outside
+  document.addEventListener('click', function(event) {
+    const modal = document.getElementById('add-participant-modal');
+    if (modal && event.target === modal) {
+      closeAddParticipantModal();
     }
   });
-}
 
-// Close modal when clicking outside
-document.addEventListener('click', function(event) {
-  const modal = document.getElementById('add-participant-modal');
-  if (modal && event.target === modal) {
-    closeAddParticipantModal();
+  // Allow typing new username and pressing Enter
+  const modalSearchInput = document.getElementById('modal-search-input');
+  if (modalSearchInput) {
+    modalSearchInput.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        const searchValue = this.value.trim();
+        if (searchValue) {
+          selectModalUser(searchValue);
+        }
+      }
+    });
   }
-});
-
-// Allow typing new username and pressing Enter
-document.getElementById('modal-search-input')?.addEventListener('keypress', function(event) {
-  if (event.key === 'Enter') {
-    const searchValue = this.value.trim();
-    if (searchValue) {
-      selectModalUser(searchValue);
-    }
-  }
-});
-</script>
+  </script>
+<% end %>
