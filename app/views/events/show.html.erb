@@ -124,17 +124,106 @@
 
       <!-- Add Participant (Creator Only) -->
       <% if @is_creator && !@event.assignments_generated %>
-        <%= form_with url: event_participants_path(@event), method: :post, class: "mt-4" do |f| %>
-          <div class="flex gap-2">
-            <%= text_field_tag :username, nil, placeholder: "Enter username to add participant", class: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent", autocomplete: "off" %>
+        <%= form_with url: event_participants_path(@event), method: :post, class: "mt-4", id: "add-participant-form" do |f| %>
+          <div class="flex gap-2 relative">
+            <%= text_field_tag :username, nil,
+              placeholder: "Enter username to add participant",
+              class: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent",
+              autocomplete: "off",
+              id: "username-input",
+              onfocus: "showUserDropdown()",
+              oninput: "filterUsers(this.value)" %>
             <%= button_tag type: "submit", class: "bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
               + Add
             <% end %>
+
+            <!-- Dropdown -->
+            <div id="user-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
+              <% User.where.not(id: @participants.pluck(:id)).order(:username).each do |user| %>
+                <div class="user-option px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                     data-username="<%= user.username %>"
+                     onclick="selectUser('<%= user.username %>')">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-2">
+                      <%= user.name.first.upcase %>
+                    </div>
+                    <div>
+                      <div class="font-medium text-gray-800"><%= user.name %></div>
+                      <div class="text-xs text-gray-500">@<%= user.username %></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              <div class="px-3 py-2 border-t border-gray-200 bg-gray-50 text-xs text-gray-600">
+                💡 Don't see them? Type any username to create a new account!
+              </div>
+            </div>
           </div>
-          <p class="text-xs text-gray-500 mt-1">Just enter their username - account will be created if it doesn't exist!</p>
+          <p class="text-xs text-gray-500 mt-1">Select existing user or type new username to create account</p>
         <% end %>
       <% end %>
     </div>
 
   </div>
 </div>
+
+<script>
+function showUserDropdown() {
+  const dropdown = document.getElementById('user-dropdown');
+  dropdown.classList.remove('hidden');
+}
+
+function hideUserDropdown() {
+  const dropdown = document.getElementById('user-dropdown');
+  dropdown.classList.add('hidden');
+}
+
+function selectUser(username) {
+  const input = document.getElementById('username-input');
+  input.value = username;
+  hideUserDropdown();
+  input.focus();
+}
+
+function filterUsers(searchTerm) {
+  const options = document.querySelectorAll('.user-option');
+  const term = searchTerm.toLowerCase();
+
+  if (!searchTerm) {
+    // Show all if empty
+    options.forEach(option => {
+      option.classList.remove('hidden');
+    });
+    showUserDropdown();
+    return;
+  }
+
+  let hasVisible = false;
+  options.forEach(option => {
+    const username = option.dataset.username.toLowerCase();
+    const name = option.querySelector('.font-medium').textContent.toLowerCase();
+
+    if (username.includes(term) || name.includes(term)) {
+      option.classList.remove('hidden');
+      hasVisible = true;
+    } else {
+      option.classList.add('hidden');
+    }
+  });
+
+  // Show dropdown if we have results
+  if (hasVisible) {
+    showUserDropdown();
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const input = document.getElementById('username-input');
+  const dropdown = document.getElementById('user-dropdown');
+
+  if (input && dropdown && !input.contains(event.target) && !dropdown.contains(event.target)) {
+    hideUserDropdown();
+  }
+});
+</script>
