@@ -111,7 +111,7 @@
                 <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
               <% end %>
               <% if @is_creator && !@event.assignments_generated %>
-                <%= action_button "Blocks", event_edit_participant_blocks_path(@event, participant), color: :orange %>
+                <%= action_button "Blocks", event_edit_participant_blocks_path(@event, participant), color: :blue %>
                 <% unless participant == @event.created_by %>
                   <%= action_button "Remove", event_participant_path(@event, participant), color: :red, method: :delete, data: { confirm: "Remove #{participant.name} from this event?" } %>
                 <% end %>

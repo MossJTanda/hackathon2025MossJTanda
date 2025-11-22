@@ -6,12 +6,12 @@ module ButtonHelper
       button_to url_or_params,
         method: :delete,
         data: data,
-        class: "#{color_classes} px-3 py-1.5 rounded text-xs font-medium transition-colors" do
+        class: "#{color_classes} px-4 py-2 rounded-md text-sm font-semibold transition-all border-2" do
         text
       end
     else
       link_to text, url_or_params,
-        class: "#{color_classes} px-3 py-1.5 rounded text-xs font-medium transition-colors"
+        class: "#{color_classes} px-4 py-2 rounded-md text-sm font-semibold transition-all border-2 inline-block"
     end
   end
 
@@ -19,18 +19,18 @@ module ButtonHelper
 
   def button_color_classes(color)
     case color
-    when :orange
-      "bg-orange-100 text-orange-700 hover:bg-orange-200"
-    when :red
-      "bg-red-100 text-red-700 hover:bg-red-200"
     when :blue
-      "bg-blue-100 text-blue-700 hover:bg-blue-200"
+      "bg-blue-500 text-white border-blue-700 hover:bg-blue-600 hover:border-blue-800 active:bg-blue-700"
+    when :red
+      "bg-red-500 text-white border-red-700 hover:bg-red-600 hover:border-red-800 active:bg-red-700"
+    when :orange
+      "bg-orange-500 text-white border-orange-700 hover:bg-orange-600 hover:border-orange-800 active:bg-orange-700"
     when :green
-      "bg-green-100 text-green-700 hover:bg-green-200"
+      "bg-green-500 text-white border-green-700 hover:bg-green-600 hover:border-green-800 active:bg-green-700"
     when :yellow
-      "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+      "bg-yellow-500 text-white border-yellow-700 hover:bg-yellow-600 hover:border-yellow-800 active:bg-yellow-700"
     else
-      "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      "bg-gray-500 text-white border-gray-700 hover:bg-gray-600 hover:border-gray-800 active:bg-gray-700"
     end
   end
 end
