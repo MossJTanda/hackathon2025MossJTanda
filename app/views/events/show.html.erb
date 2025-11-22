@@ -111,10 +111,13 @@
                 <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
               <% end %>
               <% if @is_creator && !@event.assignments_generated %>
-                <%= link_to event_edit_participant_blocks_path(@event, participant), class: "text-red-600 hover:text-red-700" do %>
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                  </svg>
+                <%= link_to event_edit_participant_blocks_path(@event, participant), class: "px-3 py-1.5 bg-orange-100 text-orange-700 rounded text-xs font-medium hover:bg-orange-200 transition-colors" do %>
+                  🚫 Blocks
+                <% end %>
+                <% unless participant == @event.created_by %>
+                  <%= button_to event_participant_path(@event, participant), method: :delete, data: { confirm: "Remove #{participant.name} from this event?" }, class: "px-3 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200 transition-colors" do %>
+                    Remove
+                  <% end %>
                 <% end %>
               <% end %>
             </div>
