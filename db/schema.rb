@@ -10,13 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_22_140200) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_22_140300) do
   create_table "books", force: :cascade do |t|
     t.string "author"
     t.datetime "created_at", null: false
     t.string "description"
     t.string "title"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "event_block_lists", force: :cascade do |t|
+    t.integer "blocked_id", null: false
+    t.integer "blocker_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "event_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_id"], name: "index_event_block_lists_on_blocked_id"
+    t.index ["blocker_id"], name: "index_event_block_lists_on_blocker_id"
+    t.index ["event_id", "blocker_id", "blocked_id"], name: "index_event_blocks_on_event_blocker_blocked", unique: true
+    t.index ["event_id"], name: "index_event_block_lists_on_event_id"
   end
 
   create_table "event_participants", force: :cascade do |t|
@@ -76,6 +88,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_22_140200) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "event_block_lists", "events"
+  add_foreign_key "event_block_lists", "users", column: "blocked_id"
+  add_foreign_key "event_block_lists", "users", column: "blocker_id"
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "users"
   add_foreign_key "events", "users", column: "created_by_id"
