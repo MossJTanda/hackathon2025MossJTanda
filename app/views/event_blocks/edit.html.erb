@@ -30,7 +30,7 @@
   </div>
 
   <!-- Two Column Layout -->
-  <%= form_with url: update_participant_blocks_event_path(@event, @participant), method: :post, id: "block-form" do |f| %>
+  <%= form_with url: event_update_participant_blocks_path(@event, @participant), method: :post, id: "block-form" do |f| %>
     <div class="px-4 py-6">
       <div class="grid grid-cols-2 gap-4 mb-4">
         <!-- Available Column -->

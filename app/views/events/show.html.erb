@@ -111,7 +111,7 @@
                 <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Host</span>
               <% end %>
               <% if @is_creator && !@event.assignments_generated %>
-                <%= link_to edit_participant_blocks_event_path(@event, participant), class: "text-red-600 hover:text-red-700" do %>
+                <%= link_to event_edit_participant_blocks_path(@event, participant), class: "text-red-600 hover:text-red-700" do %>
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
                   </svg>
