@@ -13,9 +13,9 @@ class EventParticipantsController < ApplicationController
     user = find_or_invite_user
 
     if user && @event.add_participant(user)
-      redirect_to @event, notice: "#{user.name} has been added to the event."
+      redirect_to event_add_participant_path(@event), notice: "#{user.name} has been added to the event."
     else
-      redirect_to @event, alert: 'Could not add participant. They may already be participating or assignments have been generated.'
+      redirect_to event_add_participant_path(@event), alert: 'Could not add participant. They may already be participating or assignments have been generated.'
     end
   end
 

@@ -10,11 +10,21 @@
     <h1 class="text-2xl font-bold text-gray-900">🎄 Add Friend 🎄</h1>
   </div>
 
+  <!-- Search Bar -->
+  <div class="mb-4">
+    <input
+      type="text"
+      id="user-search"
+      placeholder="Search users..."
+      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+    />
+  </div>
+
   <!-- Available Users List -->
   <% if @available_users.any? %>
-    <div class="bg-white rounded-lg shadow divide-y divide-gray-200">
+    <div id="users-list" class="bg-white rounded-lg shadow divide-y divide-gray-200">
       <% @available_users.each do |user| %>
-        <div class="px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
+        <div class="user-row px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors" data-username="<%= user.username.downcase %>">
           <div class="flex items-center space-x-3 flex-1">
             <div class="bg-gray-100 rounded-full p-2">
               <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,3 +49,48 @@
     </div>
   <% end %>
 </div>
+
+<script>
+  function initializeSearch() {
+    const searchInput = document.getElementById('user-search');
+    const userRows = document.querySelectorAll('.user-row');
+    const usersList = document.getElementById('users-list');
+
+    if (searchInput && userRows.length > 0) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        userRows.forEach(function(row) {
+          const username = row.getAttribute('data-username');
+          if (username.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Show a message if no results found
+        const noResultsMsg = document.getElementById('no-results-message');
+        if (visibleCount === 0 && searchTerm !== '') {
+          if (!noResultsMsg) {
+            const msg = document.createElement('div');
+            msg.id = 'no-results-message';
+            msg.className = 'bg-gray-50 rounded-lg p-6 text-center text-gray-500';
+            msg.innerHTML = 'No users found matching "' + searchTerm + '"';
+            usersList.parentNode.insertBefore(msg, usersList.nextSibling);
+          }
+        } else if (noResultsMsg) {
+          noResultsMsg.remove();
+        }
+      });
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initializeSearch);
+
+  // Re-initialize on Turbo navigation
+  document.addEventListener('turbo:load', initializeSearch);
+</script>

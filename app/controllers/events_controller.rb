@@ -17,6 +17,11 @@ class EventsController < ApplicationController
     @receiver = @assignment&.receiver
     @blocks = @event.event_block_lists if @is_creator
 
+    # Get all assignments for the creator to view
+    if @is_creator && @event.assignments_generated
+      @all_assignments = @event.secret_santa_assignments.includes(:giver, :receiver).order('users.name')
+    end
+
     # Check if there are available users to add
     if @is_creator && !@event.assignments_generated
       @has_available_users = User.where.not(id: @participants.pluck(:id)).exists?
