@@ -182,7 +182,8 @@ function selectUser(username) {
   const input = document.getElementById('username-input');
   input.value = username;
   hideUserDropdown();
-  input.focus();
+  // Submit the form after selecting a user
+  document.getElementById('add-participant-form').requestSubmit();
 }
 
 function filterUsers(searchTerm) {
