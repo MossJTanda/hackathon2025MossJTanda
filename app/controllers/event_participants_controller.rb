@@ -3,7 +3,10 @@ class EventParticipantsController < ApplicationController
   before_action :require_event_creator, only: [:new, :create]
 
   def new
-    @available_users = User.where.not(id: @event.participants.pluck(:id)).order(:username)
+    # Only show friends of the event creator who are not already participants
+    @available_users = current_user.friends
+                                   .where.not(id: @event.participants.pluck(:id))
+                                   .order(:username)
   end
 
   def create

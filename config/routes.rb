@@ -17,6 +17,15 @@ Rails.application.routes.draw do
   get "users/:id", to: "users#show", as: :user
   get "profile", to: "users#profile", as: :profile
 
+  # Friends and Friend Requests
+  resources :friends, only: [:index, :new, :destroy]
+  resources :friend_requests, only: [:index, :create, :destroy] do
+    member do
+      post :accept
+      post :decline
+    end
+  end
+
   # Secret Santa Events
   resources :events do
     member do

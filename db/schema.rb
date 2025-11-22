@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_22_140301) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_22_140303) do
   create_table "books", force: :cascade do |t|
     t.string "author"
     t.datetime "created_at", null: false
@@ -55,6 +55,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_22_140301) do
     t.index ["created_by_id"], name: "index_events_on_created_by_id"
   end
 
+  create_table "friend_requests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "recipient_id", null: false
+    t.integer "requester_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_id"], name: "index_friend_requests_on_recipient_id"
+    t.index ["requester_id", "recipient_id"], name: "index_friend_requests_on_requester_id_and_recipient_id", unique: true
+    t.index ["requester_id"], name: "index_friend_requests_on_requester_id"
+  end
+
+  create_table "friendships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "friend_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["friend_id"], name: "index_friendships_on_friend_id"
+    t.index ["user_id", "friend_id"], name: "index_friendships_on_user_id_and_friend_id", unique: true
+    t.index ["user_id"], name: "index_friendships_on_user_id"
+  end
+
   create_table "reviews", force: :cascade do |t|
     t.integer "book_id", null: false
     t.string "content"
@@ -95,6 +116,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_22_140301) do
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "users"
   add_foreign_key "events", "users", column: "created_by_id"
+  add_foreign_key "friend_requests", "users", column: "recipient_id"
+  add_foreign_key "friend_requests", "users", column: "requester_id"
+  add_foreign_key "friendships", "users"
+  add_foreign_key "friendships", "users", column: "friend_id"
   add_foreign_key "reviews", "books"
   add_foreign_key "reviews", "users"
   add_foreign_key "secret_santa_assignments", "events"

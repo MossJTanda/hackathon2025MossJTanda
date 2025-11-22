@@ -13,6 +13,12 @@ class User < ApplicationRecord
   has_many :blocking_users, class_name: 'EventBlockList', foreign_key: 'blocker_id', dependent: :destroy
   has_many :blocked_by_users, class_name: 'EventBlockList', foreign_key: 'blocked_id', dependent: :destroy
 
+  # Friendship associations
+  has_many :sent_friend_requests, class_name: 'FriendRequest', foreign_key: 'requester_id', dependent: :destroy
+  has_many :received_friend_requests, class_name: 'FriendRequest', foreign_key: 'recipient_id', dependent: :destroy
+  has_many :friendships, dependent: :destroy
+  has_many :friends, through: :friendships
+
   def participating_in?(event)
     participating_events.include?(event)
   end
@@ -48,5 +54,26 @@ class User < ApplicationRecord
 
   def past_events
     participating_events.where('event_date < ?', Date.today).order(event_date: :desc)
+  end
+
+  # Friendship helper methods
+  def friends_with?(user)
+    friendships.exists?(friend: user)
+  end
+
+  def pending_request_to?(user)
+    sent_friend_requests.pending.exists?(recipient: user)
+  end
+
+  def pending_request_from?(user)
+    received_friend_requests.pending.exists?(requester: user)
+  end
+
+  def can_send_friend_request_to?(user)
+    return false if self == user
+    return false if friends_with?(user)
+    return false if pending_request_to?(user)
+    return false if pending_request_from?(user)
+    true
   end
 end
