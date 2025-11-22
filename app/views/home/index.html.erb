@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-8">
+    <h1 class="text-3xl font-bold">🎅 Secret Santa</h1>
+    <p class="text-red-100 mt-2">Welcome back, <%= current_user.name %>!</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="px-4 py-6 space-y-6">
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="text-2xl font-bold text-red-600"><%= @upcoming_events.count %></div>
+        <div class="text-sm text-gray-600">Upcoming Events</div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="text-2xl font-bold text-red-600"><%= @created_events.count %></div>
+        <div class="text-sm text-gray-600">Events Created</div>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Upcoming Events</h2>
+        <%= link_to new_event_path, class: "text-red-600 text-sm font-medium" do %>
+          + New Event
+        <% end %>
+      </div>
+
+      <% if @upcoming_events.any? %>
+        <div class="space-y-3">
+          <% @upcoming_events.each do |event| %>
+            <%= link_to event_path(event), class: "block" do %>
+              <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-bold text-gray-800 text-lg"><%= event.name %></h3>
+                  <% if event.assignments_generated? %>
+                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">Assigned</span>
+                  <% else %>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Pending</span>
+                  <% end %>
+                </div>
+
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <%= event.event_date&.strftime('%b %d, %Y') || 'No date set' %>
+                </div>
+
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
+                  <%= event.participants.count %> participants
+                </div>
+
+                <% if event.assignments_generated? && current_user.has_assignment_for?(event) %>
+                  <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="text-sm text-gray-600">You're buying for:</div>
+                    <div class="text-lg font-bold text-red-600 mt-1">
+                      <%= current_user.receiver_for_event(event)&.name %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-white rounded-lg shadow p-8 text-center">
+          <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-700 mb-2">No upcoming events</h3>
+          <p class="text-gray-500 mb-4">Create your first Secret Santa event to get started!</p>
+          <%= link_to new_event_path, class: "inline-block bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
+            Create Event
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Past Events -->
+    <% if @past_events.any? %>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Past Events</h2>
+        <div class="space-y-3">
+          <% @past_events.limit(3).each do |event| %>
+            <%= link_to event_path(event), class: "block" do %>
+              <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 opacity-75">
+                <h3 class="font-bold text-gray-800"><%= event.name %></h3>
+                <div class="flex items-center text-sm text-gray-500 mt-1">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <%= event.event_date&.strftime('%b %d, %Y') %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

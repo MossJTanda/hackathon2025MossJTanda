@@ -1,0 +1,122 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-8">
+    <h1 class="text-3xl font-bold mb-2">Profile</h1>
+    <p class="text-red-100"><%= @user.email %></p>
+  </div>
+
+  <div class="px-4 py-6 space-y-6">
+    <!-- User Info Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center mb-4">
+        <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mr-4">
+          <%= @user.name.first.upcase %>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800"><%= @user.name %></h2>
+          <p class="text-gray-600 text-sm"><%= @user.email %></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-red-600"><%= @upcoming_events.count %></div>
+          <div class="text-xs text-gray-600">Upcoming</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-red-600"><%= @created_events.count %></div>
+          <div class="text-xs text-gray-600">Created</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-red-600"><%= @past_events.count %></div>
+          <div class="text-xs text-gray-600">Past</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Created -->
+    <% if @created_events.any? %>
+      <div>
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Events You Created</h2>
+        <div class="space-y-3">
+          <% @created_events.limit(5).each do |event| %>
+            <%= link_to event_path(event), class: "block" do %>
+              <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-bold text-gray-800"><%= event.name %></h3>
+                  <% if event.assignments_generated? %>
+                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">Assigned</span>
+                  <% else %>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Pending</span>
+                  <% end %>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
+                  <%= event.participants.count %> participants
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Participating Events -->
+    <% if @upcoming_events.any? %>
+      <div>
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Participating In</h2>
+        <div class="space-y-3">
+          <% @upcoming_events.limit(5).each do |event| %>
+            <%= link_to event_path(event), class: "block" do %>
+              <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
+                <h3 class="font-bold text-gray-800 mb-1"><%= event.name %></h3>
+                <% if event.assignments_generated? && current_user.has_assignment_for?(event) %>
+                  <div class="text-sm text-green-600 font-medium">
+                    🎁 Buying for: <%= current_user.receiver_for_event(event)&.name %>
+                  </div>
+                <% else %>
+                  <div class="text-sm text-gray-500">Waiting for assignments...</div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Past Events -->
+    <% if @past_events.any? %>
+      <div>
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Past Events</h2>
+        <div class="space-y-3">
+          <% @past_events.limit(5).each do |event| %>
+            <%= link_to event_path(event), class: "block" do %>
+              <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4 opacity-75">
+                <h3 class="font-bold text-gray-800"><%= event.name %></h3>
+                <div class="text-sm text-gray-500">
+                  <%= event.event_date&.strftime('%b %d, %Y') %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Empty State -->
+    <% if @created_events.empty? && @upcoming_events.empty? && @past_events.empty? %>
+      <div class="bg-white rounded-lg shadow p-8 text-center">
+        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-700 mb-2">No events yet</h3>
+        <p class="text-gray-500 mb-4">Create your first Secret Santa event to get started!</p>
+        <%= link_to new_event_path, class: "inline-block bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors" do %>
+          Create Event
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
