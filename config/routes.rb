@@ -2,21 +2,31 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "sessions#new"
 
-  # Below is the expanded syntax of the rails short hand:
-  # resource :session
+  # Home/Dashboard
+  get "home", to: "home#index", as: :home
+  get "logged_in", to: "home#index"
+
   # Session routes (singular resource)
   get "session/new", to: "sessions#new", as: :new_session
   post "session", to: "sessions#create", as: :session
   delete "session", to: "sessions#destroy"
-  get "logged_in", to: "sessions#logged_in"
 
-
-  # Below is the expanded syntax of the rails short hand:
-  # resources :users
   # User routes (web)
   get "users/new", to: "users#new", as: :new_user
   post "users", to: "users#create", as: :users
   get "users/:id", to: "users#show", as: :user
+  get "profile", to: "users#profile", as: :profile
+
+  # Secret Santa Events
+  resources :events do
+    member do
+      post :generate_assignments
+      post :reset_assignments
+    end
+
+    resources :participants, only: [:create, :destroy], controller: 'event_participants'
+    resources :blocks, only: [:create, :destroy], controller: 'event_blocks'
+  end
 
   # API Routes
   namespace :api do
