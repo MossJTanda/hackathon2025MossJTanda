@@ -8,6 +8,7 @@ services:
   - type: web
     name: hackathon-starter
     runtime: ruby
+    rubyVersion: 3.2.4
     plan: free
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
