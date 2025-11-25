@@ -19,8 +19,9 @@ This app provides a quick and easy way to set up a secret santa and have it be a
 
  - allow users to drop from an event and handle the "who's buying for who" update
  - Proper login functionality
- - e-mailing users once the event begins
+ - e-mail notifications + updates
  - Duplicate existing event from previous year (same people, same block list, new event)
+ - Broadcast events to friends
 
 
  # Deployment
