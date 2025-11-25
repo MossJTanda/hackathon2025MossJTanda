@@ -21,4 +21,12 @@ This app provides a quick and easy way to set up a secret santa and have it be a
  - Proper login functionality
  - e-mailing users once the event begins
  - Duplicate existing event from previous year (same people, same block list, new event)
- 
+
+
+ # Deployment
+
+ This app was deployed on the free tier of Render as it works well for Ruby on rails applications.
+
+ link: https://hackathon-starter-iqt1.onrender.com
+
+ note: The instance will take 1-2 minutes to spin up, use "Lucy" to log in
